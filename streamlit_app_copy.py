@@ -127,3 +127,31 @@ elif menu == "Remove Tasks":
             # Warn users about deletion
         else:
             st.warning("Please select a task to delete.")
+
+# Show reminders for today (or upcoming tasks)
+today = datetime.date.today()
+
+# Show upcoming reminders
+upcoming_days = 3
+future_date = today + datetime.timedelta(days=upcoming_days)
+
+# Convert reminder column to actual dates
+pd_existing_data["Reminder"] = pd.to_datetime(pd_existing_data["Reminder"], errors="coerce").dt.date
+
+# Filter reminders
+reminders_today = pd_existing_data[pd_existing_data["Reminder"] == today]
+upcoming_reminders = pd_existing_data[
+    (pd_existing_data["Reminder"] > today) & (pd_existing_data["Reminder"] <= future_date)
+]
+
+# Show today's reminders
+if not reminders_today.empty:
+    st.subheader("🔔 Today's Reminders")
+    for _, row in reminders_today.iterrows():
+        st.warning(f"**{row['Task Name']}** is due soon! (Due: {row['Due Date']})")
+
+# Show upcoming reminderscl
+if not upcoming_reminders.empty:
+    st.subheader(f"📅 Upcoming Reminders (next {upcoming_days} days)")
+    for _, row in upcoming_reminders.iterrows():
+        st.info(f"**{row['Task Name']}** - Reminder set for {row['Reminder']} (Due: {row['Due Date']})")
